@@ -1,0 +1,322 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta charset="utf-8" content="">
+<link rel="stylesheet" type="text/css" href="css/main.css"/>
+<style type="text/css">
+	#canvas{
+		width: 55%;
+		height:400px;
+		background: #fff;
+		position: absolute;
+		top:95px;
+		right:5px;
+	}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#" >当前用户：</a>
+				<a class="a" href="#" v-text="username"></a>
+			</div>
+		</div>
+		
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+		
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="houseInfo">&nbsp;&nbsp;住户信息</li>
+				<li @click="carInfo">&nbsp;&nbsp;车辆信息</li>
+				<li @click="carInvited">&nbsp;&nbsp;车辆报备申请</li>
+				<li @click="money">&nbsp;&nbsp;费用管理</li>
+				<li id="feenotdo" style="display:none;" @click="fee1">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看须缴费用
+				</li>
+				<li id="feedo" style="display: none" @click="fee2">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看缴费记录
+				</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请处理</li>
+				
+			</ul>
+		</div>	
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management System</font>
+			</div>
+		</div>
+	</div>
+		<!-- 主面板 -->
+		<div id="main_box" >
+			<br>
+			<br>
+				<input type="date" name="date" id="date" value="" v-model="begin"/>
+				<label>至</label>
+				<input type="date" name="date" id="date" value="" v-model="stop"/>
+				<input type="submit" value="数据分析" @click="start" style="width: 100px;" /> 
+			<table border="0px" width="40%"	style="position:absolute;top:95px;left:5px;">
+			
+				<tbody bgcolor="#EAEAEA">
+					<tr height="100px">
+						<td width="10%" align="center">第一类</td>
+						<td width="90%" align="center"><span v-for="u in data1">{{u}},</span></td>
+					</tr>
+					<tr height="100px">
+						<td width="10%" align="center">第二类</td>
+						<td width="90%" align="center"><span v-for="u in data2">{{u}},</span></td>
+					</tr>
+					<tr height="100px">
+						<td width="10%" align="center">第三类</td>
+						<td width="90%" align="center"><span v-for="u in data3">{{u}},</span></td>
+					</tr>
+					<tr height="100px">
+						<td width="10%" align="center">第四类</td>
+						<td width="90%" align="center"><span v-for="u in data4">{{u}},</span></td>
+					</tr>
+					<lable style="display:none">{{ size1 }}</lable>
+				</tbody>
+			</table>
+			<div id="canvas">
+				<canvas id="bchart" height="450px" width="700px;"></canvas>
+			</div>
+		</div>
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm1=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					begin:'',
+					stop:'',
+					size1:'',
+					size2:'',
+					size3:'',
+					size4:'',
+					point1:[],
+					point2:[],
+					point3:[],
+					point4:[],
+					data1:[],
+					data2:[],
+					data3:[],
+					data4:[],
+					points:[],
+				}
+			},
+			mounted(){
+			},
+			created(){
+				
+			},
+			methods:{
+				start(){
+					var params = new URLSearchParams();
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+					axios.post('/property/datasys.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    vm1.size1=res[0];
+		    		    vm1.size2=res[1];
+		    		    vm1.size3=res[2];
+		    		    vm1.size4=res[3];
+		    		    for(i=4,j=0;j<3;j++,i=i+4){
+		    		    	vm1.point1[j]=res[i];
+		    		    	vm1.point2[j]=res[i+1];
+		    		    	vm1.point3[j]=res[i+2];
+		    		    	vm1.point4[j]=res[i+3];
+		    		    }
+		    		    for(i=16,j=0;j<vm1.size1;i++,j++){
+		    		    	vm1.data1[j]=res[i];
+		    		    }
+		    		    for(i=16+parseInt(vm1.size1),j=0;j<vm1.size2;i++,j++){
+		    		    	vm1.data2[j]=res[i];
+		    		    }
+		    		    for(i=16+parseInt(vm1.size1)+parseInt(vm1.size2),j=0;j<vm1.size3;i++,j++){
+		    		    	vm1.data3[j]=res[i];
+		    		    }
+		    		    for(i=16+parseInt(vm1.size1)+parseInt(vm1.size2)+parseInt(vm1.size3),j=0;j<vm1.size4;i++,j++){
+		    		    	vm1.data4[j]=res[i];
+		    		    }
+		    		    vm1.points[0]='第一类电费,'+vm1.point1[0];
+		    		    vm1.points[1]='第一类水费,'+vm1.point1[1];
+		    		    vm1.points[2]='第一类燃气费,'+vm1.point1[2];
+						
+		    		    vm1.points[3]='第二类电费,'+vm1.point2[0];
+		    		    vm1.points[4]='第二类水费,'+vm1.point2[1];
+		    		    vm1.points[5]='第二类燃气费,'+vm1.point2[2];
+						
+		    		    vm1.points[6]='第三类电费,'+vm1.point3[0];
+		    		    vm1.points[7]='第三类水费,'+vm1.point3[1];
+		    		    vm1.points[8]='第三类燃气费,'+vm1.point3[2];
+						
+		    		    vm1.points[9]='第四类电费,'+vm1.point4[0];
+		    		    vm1.points[10]='第四类水费,'+vm1.point4[1];
+		    		    vm1.points[11]='第四类燃气费,'+vm1.point4[2];
+						myfunction(vm1.points);
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+					
+				},
+			}
+		})
+	</script>
+	<script type="text/javascript">
+ 
+        // 图表数据
+        var arrVisitors;
+        var canvas;
+        var context;
+        // 图表属性
+        var cWidth, cHeight, cMargin, cSpace;
+        var cMarginSpace, cMarginHeight;
+        // 条形图属性
+        var bWidth, bMargin, totalBars, maxDataValue;
+        var bWidthMargin;
+        // 条形动画
+        var ctr, numctr, speed;
+        // 轴属性
+        var totLabelsOnYAxis;
+        // 条形图构造函数
+        window.myfunction = function barChart(qwe) {
+        	arrVisitors=qwe;
+            canvas = document.getElementById('bchart');
+            if (canvas && canvas.getContext) {
+                context = canvas.getContext('2d');
+            }
+            chartSettings();
+            drawAxisLabelMarkers();
+            drawChartWithAnimation();
+        }
+        // 初始化图表和条形图值
+        function chartSettings() {
+            // 图表属性
+            cMargin = 25;
+            cSpace = 60;
+            cHeight = canvas.height - 2 * cMargin - cSpace;
+            cWidth = canvas.width - 2 * cMargin - cSpace;
+            cMarginSpace = cMargin + cSpace;
+            cMarginHeight = cMargin + cHeight;
+            // 条形图属性
+            bMargin = 15;
+            totalBars = 12;
+            bWidth = (cWidth / totalBars) - bMargin;
+            //找到要在图表上绘制的最大值
+            maxDataValue = 0;
+            for (var i = 0; i < totalBars; i++) {
+                var arrVal = arrVisitors[i].split(",");
+                var barVal = parseInt(arrVal[1]);
+                if (parseInt(barVal) > parseInt(maxDataValue))
+                    maxDataValue = barVal;
+            }
+            totLabelsOnYAxis = 10;
+            context.font = "10pt Garamond";
+            
+            // 初始化动画变量
+            ctr = 0;
+            numctr = 100;
+            speed = 10;
+        }
+        // 绘制图表轴、标签和标记
+        function drawAxisLabelMarkers() {
+            context.lineWidth = "2.0";
+            // 绘制y轴
+            drawAxis(cMarginSpace, cMarginHeight, cMarginSpace, cMargin);
+            //绘制x轴
+            drawAxis(cMarginSpace, cMarginHeight, cMarginSpace + cWidth, cMarginHeight);
+            context.lineWidth = "1.0";
+            drawMarkers();
+        }
+        //绘制X和Y轴
+        function drawAxis(x, y, X, Y) {
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(X, Y);
+            context.closePath();
+            context.stroke();
+        }
+        //在X和Y轴上绘制图表标记
+        function drawMarkers() {
+            var numMarkers = parseInt(maxDataValue / totLabelsOnYAxis);
+            context.textAlign = "right";
+            context.fillStyle = "#000";;
+            //y轴
+            for (var i = 0; i <= totLabelsOnYAxis; i++) {
+                markerVal = i * numMarkers;
+                markerValHt = i * numMarkers * cHeight;
+                var xMarkers = cMarginSpace - 5;
+                var yMarkers = cMarginHeight - (markerValHt / maxDataValue);
+                context.fillText(markerVal, xMarkers, yMarkers, cSpace);
+            }
+            //X轴
+            context.textAlign = 'center';
+            for (var i = 0; i < totalBars; i++) {
+                 arrval = arrVisitors[i].split(",");
+                 name = arrval[0];
+                 markerXPos = cMarginSpace + bMargin 
+                              + (i * (bWidth + bMargin)) + (bWidth/2);
+                 markerYPos = cMarginHeight + 15; //X轴文字位置
+                 context.fillText(name, markerXPos, markerYPos, bWidth);
+            }
+            context.save();
+            //添加Y轴标题
+            context.translate(cMargin + 10, cHeight / 2);
+            context.rotate(Math.PI * -90 / 180);
+            context.fillText('费用', 0, 0);
+            context.restore();
+            //添加X轴标题
+            context.fillText('', cMarginSpace + 
+                        (cWidth / 2), cMarginHeight + 30 );
+        }
+        function drawChartWithAnimation() {
+            //循环遍历总条并绘制
+            for (var i = 0; i < totalBars; i++) {
+                var arrVal = arrVisitors[i].split(",");
+                bVal = parseInt(arrVal[1]);
+                bHt = (bVal * cHeight / maxDataValue) / numctr * ctr;
+                bX = cMarginSpace + (i * (bWidth + bMargin)) + bMargin;
+                bY = cMarginHeight - bHt - 2;
+                drawRectangle(bX, bY, bWidth, bHt, true);
+            }
+            // 超时运行并检查是否已达到条
+            // 所需高度；如果不是，则继续增长
+            if (ctr < numctr) {
+                ctr = ctr + 1;
+                setTimeout(arguments.callee, speed);
+            }
+        }
+        function drawRectangle(x, y, w, h, fill) {
+            context.beginPath();          
+            context.rect(x, y, w, h);          
+            context.closePath();
+            context.stroke();
+            if (fill) {
+                var gradient = context.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'red');
+                //gradient.addColorStop(1, 'rgba(67,203,36,.15)');
+                gradient.addColorStop(1, 'grey');
+                context.fillStyle = gradient;
+                context.strokeStyle = gradient;
+                context.fill();
+            }
+        }
+</script>
+</html>

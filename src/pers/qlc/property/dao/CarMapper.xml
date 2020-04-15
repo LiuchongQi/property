@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.CarDao">
+	<select id="carAll" resultType="java.util.HashMap">
+		select * from carinfo 
+		<if test="index !=-1">
+				 limit #{index},#{count}
+		</if>
+	</select>
+	<select id="carAllNum" resultType="java.lang.Integer">
+		select count(*) from carinfo
+	</select>
+	<select id="carFindByHouseId" resultType="java.util.HashMap">
+		select * from carinfo where houseid=#{0}
+	</select>
+	<select id="carFindByCarId" resultType="java.util.HashMap">
+		select * from carinfo where 1=1
+			<if test="houseid !=null and'' neq houseid">
+				and houseid=#{houseid}
+			</if>
+			<if test="carid !=null and'' neq carid">
+				and carid=#{carid}
+			</if>
+	</select>
+	<insert id="carInsert">
+		insert into carinfo(houseid,carid,type,color,intime) values(#{0},#{1},#{2},#{3},#{4})
+	</insert>
+	<delete id="carDeleteByCarId">
+		delete from carinfo where carid=#{0}
+	</delete>
+	<delete id="carDeleteByHouseId">
+		delete from carinfo where houseid=#{0}
+	</delete>
+</mapper>

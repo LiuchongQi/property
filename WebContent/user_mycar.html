@@ -1,0 +1,201 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<style type="text/css">
+#in {
+	width: 300px;
+	height: 210px;
+	position: fixed;
+	top: 30%;
+	left: 40%;
+	background: #EBEBEB;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+
+#out {
+	width: 300px;
+	height: 130px;
+	position: fixed;
+	top: 25%;
+	left: 40%;
+	background: #EBEBEB;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#">当前用户：</a> <a class="a" href="#"
+					v-text="username"></a>
+			</div>
+		</div>
+
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="myinfo">&nbsp;&nbsp;个人信息</li>
+				<li @click="mycar">&nbsp;&nbsp;车辆信息</li>
+				<li @click="feenotdo">&nbsp;&nbsp;待缴费用</li>
+				<li @click="feedo">&nbsp;&nbsp;缴费记录</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请</li>
+			</ul>
+		</div>
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management
+					System</font>
+			</div>
+		</div>
+	</div>
+	<!-- 主面板 -->
+	<div id="main_box">
+		<table border="0px" width="100%">
+			<thead>
+				<tr height="30px">
+					<th colspan="6" bgcolor="#DCDCDC" align="left">车辆信息</th>
+				</tr>
+				<tr>
+					<th colspan="7" bgcolor="#DCDCDC" align="right"><input
+						type="submit" value="车辆驶入报备" @click="drivein"
+						style="width: 150px;" /> <input type="submit" value="车辆驶出报备"
+						@click="driveout" style="width: 150px;" /></th>
+				</tr>
+				<tr height="30px">
+					<th bgcolor="#DCDCDC">车牌号</th>
+					<th bgcolor="#DCDCDC">型号</th>
+					<th bgcolor="#DCDCDC">颜色</th>
+					<th bgcolor="#DCDCDC">登记时间</th>
+				</tr>
+			</thead>
+			<tbody bgcolor="#F5F5F5">
+				<tr v-for="user in info" height="30px">
+					<td width="14%" align="center" v-text="user.carid"></td>
+					<td width="14%" align="center" v-text="user.type"></td>
+					<td width="14%" align="center" v-text="user.color"></td>
+					<td width="14%" align="center" v-text="user.intime"></td>
+				</tr>
+			</tbody>
+		</table>
+		<div id="in">
+			<h3 style="position: absolute; top: 20px; left: 100px;">车辆报备</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				车牌号：<input type="text" maxlength="16" v-model="carid" /><br>
+				<br>&nbsp;&nbsp; 颜色：<input type="text" maxlength="16" v-model="color" /><br>
+				<br> &nbsp;&nbsp; 型号：<input type="text" maxlength="16" v-model="type" /><br>
+				<br> <input type="submit" value="确定" style="margin-left: 90px"
+					@click="confirm1" /> <input type="submit" value="取消"
+					style="margin-left: 10px" @click="cancel" />
+			</div>
+		</div>
+		<div id="out">
+			<h3 style="position: absolute; top: 20px; left: 100px;">车辆报备</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				车牌号：<input type="text" maxlength="16" v-model="carid" /><br>
+				<br> <input type="submit" value="确定" style="margin-left: 90px"
+					@click="confirm2" /> <input type="submit" value="取消"
+					style="margin-left: 10px" @click="cancel" />
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main2.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm1=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					carid:'',
+					type:'',
+					color:''
+				}
+			},
+			created(){
+				axios.post('/property/mycar.do', )
+	    		  .then(function (response) {
+	    		    var res=response.data;
+	    		   	vm1.info=res;
+	    		   	console.log(res);
+	    		  })
+	    		  .catch(function (error) {
+	    			alert("系统错误，请稍后重试！！！");
+	    		    console.log(error);
+	    		  }); 
+			},
+			methods:{
+				drivein(){
+					this.carid='';
+					this.type='';
+					this.color='';
+					document.getElementById("out").style.display="none";
+					document.getElementById("in").style.display="block";
+				},
+				driveout(){
+					this.carid='';
+					document.getElementById("in").style.display="none";
+					document.getElementById("out").style.display="block";
+				},
+				confirm1(){
+					var params = new URLSearchParams();
+		    		  params.append('carid', this.carid);
+		    		  params.append('type', this.type);
+		    		  params.append('color', this.color);
+					axios.post('/property/drivein.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res=='ok'){
+		    		    	alert("申请成功，请等待管理员核查！！！");
+		    		    }
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				confirm2(){
+					var params = new URLSearchParams();
+		    		  params.append('carid', this.carid);
+					axios.post('/property/driveout.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res=='ok'){
+		    		    	alert("申请成功，请等待管理员核查！！！");
+		    		    }
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				cancel(){
+					document.getElementById("in").style.display="none";
+					document.getElementById("out").style.display="none";
+				}
+			}
+		})
+	</script>
+</html>

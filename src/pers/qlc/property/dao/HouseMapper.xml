@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.HouseDao">
+	
+	<select id="houseAll" resultType="java.util.HashMap">
+		select * from houseinfo where islive='1'
+		<if test="index !=-1">
+				 limit #{index},#{count}
+		</if>
+	</select>
+	<select id="houseAllNum" resultType="java.lang.Integer">
+		select count(*) from houseinfo where islive='1'
+	</select>
+	<select id="houseFindById" resultType="java.util.HashMap">
+		select * from houseinfo where houseid=#{0}
+	</select>
+	<select id="myinfo" resultType="java.util.HashMap">
+		select * from houseinfo where islive='1' and houseid=#{0}
+	</select>
+	<insert id="houseInsert">
+		insert into houseinfo(houseid,name,intime,peonum,idcardnum,phone,islive) values(#{0},#{1},#{2},#{3},#{4},#{5},'1')
+	</insert>
+	<update id="houseUpdate">
+		update houseinfo set name=#{1},intime=#{2},peonum=#{3},idcardnum=#{4},phone=#{5} where houseid=#{0}
+	</update>
+	<update id="houseDelete">
+		update houseinfo set outtime=#{3},islive='0' where houseid=#{0} and name=#{1} and idcardnum=#{2};
+	</update>
+</mapper>

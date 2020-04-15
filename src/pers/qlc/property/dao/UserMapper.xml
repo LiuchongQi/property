@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.UserDao">
+
+	<select id="loginFindById" resultType="java.util.HashMap">
+		select * from login where username=#{0}
+	</select>
+	<insert id="loginInsert">
+		insert into login(username,password,role) values(#{0},#{1},#{2})
+	</insert>
+	<delete id="loginDelete">
+		delete from login where username=#{0}
+	</delete>
+	<update id="loginUpdate">
+		update login set password=#{1} where username=#{0}
+	</update>
+	
+</mapper>

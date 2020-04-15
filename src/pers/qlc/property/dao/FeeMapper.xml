@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.FeeDao">
+	<select id="feeFindByHouseIdNotDo" resultType="java.util.HashMap">
+		select * from feeinfo where isdone='0' 
+		<if test="p1 !=null and'' neq p1">
+				and houseid=#{p1}
+		</if>
+	</select>
+	<select id="feeFindByHouseIdDo" resultType="java.util.HashMap">
+		select * from feeinfo where isdone='1'
+			<if test="p2 !=null and'' neq p2">
+				and houseid=#{p2}
+			</if>
+			<if test="bt !=null and'' neq bt">
+				and outtime &gt; #{bt}
+			</if>
+			<if test="st !=null and'' neq st">
+				and outtime &lt; #{st}
+			</if>
+			<if test="index !=-1">
+				 limit #{index},#{count}
+			</if>
+	</select>
+	<insert id="feeInsert">
+		insert into feeinfo(houseid,feename,num,intime,remarks,isdone) values(#{0},#{1},#{2},#{3},#{4},'0')
+	</insert>
+	<update id="feeDo">
+		update feeinfo set outtime=#{1},isdone='1',peo=#{2} where id=#{0}
+	</update>
+	<delete id="deleteDo">
+		delete from feeinfo where id=#{0}
+	</delete>
+	<select id="feeNumFindByHouseIdDo" resultType="java.lang.Integer">
+		select count(*) from feeinfo where isdone='1'
+			<if test="p2 !=null and'' neq p2">
+				and houseid=#{p2}
+			</if>
+			<if test="bt !=null and'' neq bt">
+				and outtime &gt; #{bt}
+			</if>
+			<if test="st !=null and'' neq st">
+				and outtime &lt; #{st}
+			</if>
+	</select>
+</mapper>

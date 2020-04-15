@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.FixDao">
+	<select id="fixAll" resultType="java.util.HashMap">
+		select * from fixinfo where type='未受理' or type='未完成'
+	</select>
+	<select id="fixedAll" resultType="java.util.HashMap">
+		select * from fixinfo where type='未评价' or type='已评价'
+	</select>
+	<select id="fixByHouseId" resultType="java.util.HashMap">
+		select * from fixinfo where peo=#{0} order by time desc
+	</select>
+	<insert id="fixInsert">
+		insert into fixinfo(fixtype,mainthing,didian,time,peo,type,phone) values(#{0},#{1},#{2},#{3},#{4},'未受理',#{5})
+	</insert>
+	<update id="see">
+		update fixinfo set type='未完成' where id=#{0}
+	</update>
+	<update id="done">
+		update fixinfo set type='未评价' where id=#{0}
+	</update>
+	<update id="eval">
+		update fixinfo set type='已评价',evaluate=#{1} where id=#{0}
+	</update>
+</mapper>

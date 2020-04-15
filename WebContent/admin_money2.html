@@ -1,0 +1,237 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta charset="utf-8" content="">
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<style type="text/css">
+	#fenye{
+	list-style: none;
+	margin-left: 30%;
+	position:absolute;
+	bottom:0px;
+}
+
+#fenye li {
+	float: left;
+}
+#fenye li h4{
+	height:30px;
+	line-height: 30px;
+}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#">当前用户：</a> <a class="a" href="#"
+					v-text="username"></a>
+			</div>
+		</div>
+
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="houseInfo">&nbsp;&nbsp;住户信息</li>
+				<li @click="carInfo">&nbsp;&nbsp;车辆信息</li>
+				<li @click="carInvited">&nbsp;&nbsp;车辆报备申请</li>
+				<li @click="money">&nbsp;&nbsp;费用管理</li>
+				<li id="feenotdo" style="display: none;" @click="fee1">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看须缴费用</li>
+				<li id="feedo" style="display: none" @click="fee2">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看缴费记录</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请处理</li>
+			</ul>
+		</div>
+		<div id="feecho"></div>
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management
+					System</font>
+			</div>
+		</div>
+	</div>
+	<!-- 主面板 -->
+	<div id="main_box">
+		<table border="0px" width="100%">
+			<thead>
+				<tr height="30px">
+					<th colspan="7" bgcolor="#DCDCDC" align="left">缴费记录</th>
+				</tr>
+				<tr>
+					<th colspan="7" bgcolor="#DCDCDC" align="right">
+						<input type="date" name="date" id="date" value="" v-model="begin"/>
+						<label>至</label>
+						<input type="date" name="date" id="date" value="" v-model="stop"/>
+						<input type="text" maxlength="16" v-model="find" placeholder="请输入住户编号" />
+						<input type="submit" value="搜索" @click="findbyid" style="width: 100px;" /> 
+						<input type="submit" value="数据分析" @click="datafunc" style="width: 100px;" /> 
+					</th>
+				</tr>
+				<tr height="30px">
+					<th bgcolor="#DCDCDC">费用编号</th>
+					<th bgcolor="#DCDCDC">住户编号</th>
+					<th bgcolor="#DCDCDC">费用名称</th>
+					<th bgcolor="#DCDCDC">数额</th>
+					<th bgcolor="#DCDCDC">缴费时间</th>
+					<th bgcolor="#DCDCDC">备注</th>
+					<th bgcolor="#DCDCDC">操作人</th>
+				</tr>
+			</thead>
+			<tbody bgcolor="#F5F5F5">
+				<tr v-for="user in info" height="30px">
+					<td width="14%" align="center" v-text="user.id"></td>
+					<td width="14%" align="center" v-text="user.houseid"></td>
+					<td width="14%" align="center" v-text="user.feename"></td>
+					<td width="14%" align="center" v-text="user.num"></td>
+					<td width="14%" align="center" v-text="user.outtime"></td>
+					<td width="14%" align="center" v-text="user.remarks"></td>
+					<td width="16%" align="center" v-text="user.peo"></td>
+				</tr>
+			</tbody>
+		</table>
+		<ul id="fenye">
+			<li><input type="submit" value="首页" @click="firstpage" style="width: 100px;" /></li>
+			<li><input type="submit" value="上一页" @click="lastpage" style="width: 100px;" /></li>
+			<li><h4>第</h4></li>
+			<li><h4 v-text="pagenum"></h4></li>
+			<li><h4>页</h4></li>
+			<li><h4>/</h4></li>
+			<li><h4>共</h4></li>
+			<li><h4 v-text="maxnum"></h4></li>
+			<li><h4>页</h4></li>
+			<li><input type="submit" value="下一页" @click="nextpage" style="width: 100px;" /></li>
+			<li><input type="submit" value="末页" @click="endpage" style="width: 100px;" /></li>
+		</ul>
+	</div>
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm1=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					find:'',
+					begin:'',
+					stop:'',
+					pagenum:'',
+					maxnum:''
+				}
+			},
+			created(){
+				
+			},
+			methods:{
+				datafunc(){
+					window.location.href = "./admin_data.html"
+				},
+				findbyid(){
+					var params = new URLSearchParams();
+		    		  params.append('houseid', this.find);
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+					axios.post('/property/userfeedone.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res!=''){
+		    		    	vm1.info=res;
+			    		   	vm1.pagenum=res[0].pagenum;
+			    		   	vm1.maxnum=res[0].maxnum;
+		    		    }else{
+		    		    	vm1.info='';
+		    		    	alert("无数据");
+		    		    }	
+		    		    
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				firstpage(){
+					var params = new URLSearchParams();
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+		    		  params.append('pagenum', 1);
+					axios.post('/property/userfeedone.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm1.info=res;
+		    		   	vm1.pagenum=res[0].pagenum;
+		    		   	vm1.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				lastpage(){
+					var params = new URLSearchParams();
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+		    		  params.append('pagenum', this.pagenum-1);
+					axios.post('/property/userfeedone.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm1.info=res;
+		    		   	vm1.pagenum=res[0].pagenum;
+		    		   	vm1.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				nextpage(){
+					var params = new URLSearchParams();
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+		    		  params.append('pagenum', this.pagenum+1);
+					axios.post('/property/userfeedone.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm1.info=res;
+		    		   	vm1.pagenum=res[0].pagenum;
+		    		   	vm1.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				endpage(){
+					var params = new URLSearchParams();
+		    		  params.append('begintime', this.begin);
+		    		  params.append('stoptime', this.stop);
+		    		  params.append('pagenum', this.maxnum);
+					axios.post('/property/userfeedone.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm1.info=res;
+		    		   	vm1.pagenum=res[0].pagenum;
+		    		   	vm1.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				}
+				
+			}
+		})
+	</script>
+</html>

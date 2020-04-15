@@ -1,0 +1,407 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta charset="utf-8" content="">
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<style type="text/css">
+#carin {
+	width: 300px;
+	height: 260px;
+	position: fixed;
+	top: 25%;
+	left: 40%;
+	background: #EBEBEB;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+#fenye{
+	list-style: none;
+	margin-left: 30%;
+	position:absolute;
+	bottom:0px;
+}
+
+#fenye li {
+	float: left;
+}
+#fenye li h4{
+	height:30px;
+	line-height: 30px;
+}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#">当前用户：</a> <a class="a" href="#"
+					v-text="username"></a>
+			</div>
+		</div>
+
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="houseInfo">&nbsp;&nbsp;住户信息</li>
+				<li @click="carInfo">&nbsp;&nbsp;车辆信息</li>
+				<li @click="carInvited">&nbsp;&nbsp;车辆报备申请</li>
+				<li @click="money">&nbsp;&nbsp;费用管理</li>
+				<li id="feenotdo" style="display:none;" @click="fee1">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看须缴费用
+				</li>
+				<li id="feedo" style="display: none" @click="fee2">
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看缴费记录
+				</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请处理</li>
+
+			</ul>
+		</div>
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management
+					System</font>
+			</div>
+		</div>
+	</div>
+	<!-- 主面板 -->
+	<div id="main_box">
+		<table border="0px" width="100%">
+			<thead>
+				<tr height="30px">
+					<th colspan="7" bgcolor="#DCDCDC" align="left">车辆信息</th>
+				</tr>
+				<tr>
+					<th colspan="7" bgcolor="#DCDCDC" align="right">
+						<input type="text" maxlength="16" v-model="homeid" placeholder="请输入住户编号" />
+						<input type="text" maxlength="16" v-model="caridfind" placeholder="请输入车牌号" />
+						<input type="submit" value="搜索" @click="findbyid" style="width:100px;"/>
+						<input type="submit" value="车辆登记" @click="drivein" style="width: 100px;" />
+						<input
+						type="file" name="file1" value="导入" ref="file" @change="ininfo"
+						style="width: 170px;"
+						accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+						<input type="submit" value="导出" @click="outinfo" style="width:100px;"/>
+						<input type="submit" value="模板下载" @click="down" style="width:100px;"/>
+					</th>
+				</tr>
+				<tr height="30px">
+					<th bgcolor="#DCDCDC">车主</th>
+					<th bgcolor="#DCDCDC">车牌号</th>
+					<th bgcolor="#DCDCDC">型号</th>
+					<th bgcolor="#DCDCDC">颜色</th>
+					<th bgcolor="#DCDCDC">登记时间</th>
+					<th bgcolor="#DCDCDC">操作</th>
+				</tr>
+			</thead>
+			<tbody bgcolor="#F5F5F5">
+				<tr v-for="user in info" height="30px">
+					<td width="14%" align="center" v-text="user.houseid"></td>
+					<td width="14%" align="center" v-text="user.carid"></td>
+					<td width="14%" align="center" v-text="user.type"></td>
+					<td width="14%" align="center" v-text="user.color"></td>
+					<td width="14%" align="center" v-text="user.intime"></td>
+					<td width="16%" align="center"><a
+						@click="deletecar(user.carid)" style="cursor: pointer">删除</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<div id="carin">
+			<h3 style="position: absolute; top: 20px; left: 100px;">车辆登记</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				车主：<input type="text" maxlength="16" v-model="houseid" /><br>
+				<br> 车牌：<input type="text" maxlength="16" v-model="carid" /><br>
+				<br> 型号：<input type="text" maxlength="16" v-model="type" /><br>
+				<br> 颜色：<input type="text" maxlength="16" v-model="color" /><br>
+				<br> 时间：<input type="text" maxlength="16" v-model="intime" /><br>
+				<br> <input type="submit" value="确定" style="margin-left: 90px" @click="confirm" /> 
+				<input type="submit" value="取消" style="margin-left: 10px" @click="cancel" />
+			</div>
+		</div>
+		<ul id="fenye">
+			<li><input type="submit" value="首页" @click="firstpage" style="width: 100px;" /></li>
+			<li><input type="submit" value="上一页" @click="lastpage" style="width: 100px;" /></li>
+			<li><h4>第</h4></li>
+			<li><h4 v-text="pagenum"></h4></li>
+			<li><h4>页</h4></li>
+			<li><h4>/</h4></li>
+			<li><h4>共</h4></li>
+			<li><h4 v-text="maxnum"></h4></li>
+			<li><h4>页</h4></li>
+			<li><input type="submit" value="下一页" @click="nextpage" style="width: 100px;" /></li>
+			<li><input type="submit" value="末页" @click="endpage" style="width: 100px;" /></li>
+		</ul>
+	</div>
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm2=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					houseid:'',
+					carid:'',
+					type:'',
+					color:'',
+					intime:'',
+					homeid:'',
+					caridfind:'',
+					pagenum:'',
+					maxnum:''
+				}
+			},
+			created(){
+				axios.post('/property/carAll.do')
+	    		.then(function (response) {
+	    			var res=response.data;
+	    			if(res!=''){
+	    				vm2.info=res;
+		    			vm2.pagenum=res[0].pagenum;
+		    		   	vm2.maxnum=res[0].maxnum;
+	    			}else{
+	    				alert("无数据");
+	    			}
+	    		})
+	    		
+			},
+			methods:{
+				drivein(){
+					this.houseid='';
+					this.carid='';
+					this.type='';
+					this.color='';
+					this.intime='';
+					document.getElementById("carin").style.display="block";
+				},
+				cancel(){
+					document.getElementById("carin").style.display="none";
+				},
+				insertcar(){
+					var params1 = new URLSearchParams();
+		    		  params1.append('houseid', this.houseid);
+		    		  params1.append('carid', this.carid);
+		    		  params1.append('type', this.type);
+		    		  params1.append('color', this.color);
+		    		  params1.append('intime', this.intime);
+  		    			axios.post('/property/carinsert.do', params1)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res==true){
+		    		    	alert("操作成功！！！");
+		    		    }
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  });
+				},
+				confirm(){
+					var params = new URLSearchParams();
+		    		  params.append('houseid', this.houseid);
+		    		axios.post('/property/ishouseid.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res==true){
+		    		    	vm2.insertcar();
+		    		    }else{
+		    		    	alert("请确认信息是否有误！！！");
+		    		    }
+		    		    location.reload();
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				
+				deletecar(carid){
+					var params = new URLSearchParams();
+		    		  params.append('carid', carid);
+		    		axios.post('/property/cardelete.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res=="ok"){
+		    		    	alert("操作成功！！！");
+		    		    }else{
+		    		    	alert("操作失败！！！");
+		    		    }
+		    		    location.reload();
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				findbyid(){
+					if(this.homeid!=''||this.caridfind!=''){
+						document.getElementById("fenye").style.display="none";
+						var params = new URLSearchParams();
+			    		  params.append('homeid', this.homeid);
+			    		  params.append('carid', this.caridfind);
+						axios.post('/property/findcar.do;',params )
+			    		  .then(function (response) {
+			    		    var res=response.data;
+			    		   	vm2.info=res;
+			    		  })
+			    		  .catch(function (error) {
+			    			  alert("系统错误，请稍后重试！！！");
+				    		   console.log(error);
+			    		  }); 
+					}else{
+						alert("请输入查询条件");
+						vm2.info='';
+					}
+					
+				},
+				firstpage(){
+					var params = new URLSearchParams();
+		    		  params.append('pagenum', 1);
+					axios.post('/property/carAll.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm2.info=res;
+		    		   	vm2.pagenum=res[0].pagenum;
+		    		   	vm2.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				lastpage(){
+					var params = new URLSearchParams();
+		    		  params.append('pagenum', this.pagenum-1);
+					axios.post('/property/carAll.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm2.info=res;
+		    		   	vm2.pagenum=res[0].pagenum;
+		    		   	vm2.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				nextpage(){
+					var params = new URLSearchParams();
+		    		  params.append('pagenum', this.pagenum+1);
+					axios.post('/property/carAll.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm2.info=res;
+		    		   	vm2.pagenum=res[0].pagenum;
+		    		   	vm2.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				endpage(){
+					var params = new URLSearchParams();
+		    		  params.append('pagenum', this.maxnum);
+					axios.post('/property/carAll.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		   	vm2.info=res;
+		    		   	vm2.pagenum=res[0].pagenum;
+		    		   	vm2.maxnum=res[0].maxnum;
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				ininfo(){
+					let formData=new FormData();
+		            formData.append('img',this.$refs.file.files[0])
+		            axios.post('/property/daorucar.do',formData,{
+		                'Content-Type':'multipart/form-data'
+		            }).then(res=>{
+		            	console.log(res.data)
+		 				if(res.data=='ok'){
+		 					alert("导入成功！！");
+		 					location.reload();
+		 				}else{
+		 					alert("请检查数据是否正确！！");
+		 				}
+		            })
+				},
+				outinfo(){
+					axios({
+					    url: '/property/exportcar.do',
+					    method: 'post',
+					    params: {
+					    	homeid:this.homeid,
+					    	carid:this.caridfind
+					    },
+					    responseType: 'blob'     //接收类型设置，否者返回字符型
+					  })
+					    .then(res => {           //定义文件名等相关信息
+					      const blob = res.data
+					      const reader = new FileReader()
+					      reader.readAsDataURL(blob)
+					      reader.onload = (e) => {
+					        const a = document.createElement('a')
+					        var vNow = new Date();
+							var sNow = "车辆表";
+							sNow += String(vNow.getFullYear());
+							sNow += String(vNow.getMonth() + 1);
+							sNow += String(vNow.getDate());
+							sNow += String(vNow.getHours());
+							sNow += String(vNow.getMinutes());
+							sNow += String(vNow.getSeconds());
+							sNow += ".xlsx";
+					        a.download = sNow;
+					        a.href = e.target.result
+					        document.body.appendChild(a)
+					        a.click()
+					        document.body.removeChild(a)
+					      }
+					    })
+				},
+				down(){
+					axios({
+					    url: '/property/download.do',
+					    method: 'get',
+					    params: {
+					    	filename:'car'
+					    },
+					    responseType: 'blob'     //接收类型设置，否者返回字符型
+					  })
+					    .then(res => {           //定义文件名等相关信息
+					      const blob = res.data
+					      const reader = new FileReader()
+					      reader.readAsDataURL(blob)
+					      reader.onload = (e) => {
+					        const a = document.createElement('a')
+					        a.download = '车辆表.xlsx'
+					        a.href = e.target.result
+					        document.body.appendChild(a)
+					        a.click()
+					        document.body.removeChild(a)
+					      }
+					    })
+
+				}
+				
+			}
+		})
+	</script>
+</html>

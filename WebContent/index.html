@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>社区管理系统</title>
+<style>
+		*{margin:0;paddding:0;}
+		.textbox{ height:250px; width:300px;position:absolute;background:#FFFFFF;background:rgba(255,255,255,0.5);
+				margin:auto;top: 0;left: 0;right: 0;bottom: 0;padding:30px;} 
+		.botton{width:300px;height:40px;border-radius:2px;background:#005AB5;}
+		.input{width:300px;height:30px;text-align:center;vertical-align:center;
+			border:1px solid #fff;background-color:#FFFFFF;background:rgba(255,255,255,1);margin-top:10px;position:relative;} 
+		</style>
+</head>
+<body>
+	<div style="position:absolute; left:0px; top:0px; width:100%; height:100%">  
+			<img src="images/login.jpg" width="100%" height="100%"/>  
+			<div class="textbox" id="app"></br> 					
+				<input name="username" type="text" class="input" maxlength="16" placeholder="Username" v-model="username"/></br></br>	
+				<input name="password" type="password" class="input" maxlength="16" placeholder="Password" v-model="password"/></br></br>
+				<input type="submit" value="Login" class="botton" style="font-size:15px" @click="login"/>
+			</div>
+		</div> 
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm=new Vue({
+			el:'#app',
+			data(){
+				return{
+					username:'',
+					password:''
+				}
+			},
+			methods:{
+				login(){
+					var params = new URLSearchParams()
+		    		  params.append('uname', this.username)
+		    		  params.append('psd', this.password)
+		    		axios.post('/property/login.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res=='admin'){
+		    		    	window.location.href = "./admin_home.html"
+		    		    }else if(res=='user'){
+		    		    	window.location.href = "./user_home.html"
+		    		    }else{
+		    		    	alert("账号或密码错误！！！");
+		    		    }
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				}	
+			}
+		})
+	</script>
+</html>

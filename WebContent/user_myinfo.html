@@ -1,0 +1,189 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<style type="text/css">
+#infolist tr {
+	height: 30px;
+}
+#change {
+	width: 300px;
+	height: 250px;
+	position: fixed;
+	top: 25%;
+	left: 40%;
+	background: #EBEBEB;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+.pass{
+	width:280px;height:30px;text-align:center;vertical-align:center;
+			border:1px solid #fff;background-color:#FFFFFF;background:rgba(255,255,255,1);margin-top:10px;position:relative;
+}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#">当前用户：</a> <a class="a" href="#"
+					v-text="username"></a>
+			</div>
+		</div>
+
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="myinfo">&nbsp;&nbsp;个人信息</li>
+				<li @click="mycar">&nbsp;&nbsp;车辆信息</li>
+				<li @click="feenotdo">&nbsp;&nbsp;待缴费用</li>
+				<li @click="feedo">&nbsp;&nbsp;缴费记录</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请</li>
+			</ul>
+		</div>
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management
+					System</font>
+			</div>
+		</div>
+	</div>
+	<!-- 主面板 -->
+	<div id="main_box">
+		<table border="0px" width="100%">
+			<thead>
+				<tr height="25px">
+					<th colspan="2" bgcolor="#DCDCDC" align="left">我的信息</th>
+					<input type="submit" value="修改密码"
+						@click="changepass" style="width: 150px;position:absolute;right:0px;" />
+				</tr>
+			</thead>
+			<tbody bgcolor="#F5F5F5" id="infolist">
+				<tr>
+					<td align="right" width="40%">住房编号：</td>
+					<td v-text="this.info.houseid"></td>
+				</tr>
+				<tr>
+					<td align="right">姓名：</td>
+					<td v-text="this.info.name"></td>
+				</tr>
+				<tr>
+					<td align="right">入住时间：</td>
+					<td v-text="this.info.intime"></td>
+				</tr>
+				<tr>
+					<td align="right">家庭人数：</td>
+					<td v-text="this.info.peonum"></td>
+				</tr>
+				<tr>
+					<td align="right">户主身份证号码：</td>
+					<td v-text="this.info.idcardnum"></td>
+				</tr>
+				<tr>
+					<td align="right">联系方式：</td>
+					<td v-text="this.info.phone"></td>
+				</tr>
+			</tbody>
+		</table>
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="100%" color="grey" SIZE="3">
+		<div id="change">
+			<h3 style="position: absolute; top: 20px; left: 100px;">修改密码</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				<input type="text" maxlength="16" v-model="oldpass" placeholder="请输入当前密码"  class="pass"/><br><br>
+				<input type="text" maxlength="16" v-model="newpass" placeholder="请输入新密码"  class="pass"/><br><br>
+				<input type="text" maxlength="16" v-model="repass" placeholder="请确认新密码"  class="pass"/><br><br>
+				<input type="submit" value="确定" style="margin-left: 90px" @click="confirm" />
+				<input type="submit" value="取消" style="margin-left: 10px" @click="cancel" />
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main2.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm1=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					oldpass:'',
+					newpass:'',
+					repass:''
+				}
+			},
+			created(){
+				axios.post('/property/myinfo.do', )
+	    		  .then(function (response) {
+	    		    var res=response.data;
+	    		   	vm1.info=res;
+	    		   	console.log(res);
+	    		  })
+	    		  .catch(function (error) {
+	    			alert("系统错误，请稍后重试！！！");
+	    		    console.log(error);
+	    		  }); 
+			},
+			methods:{
+				changepass(){
+					this.oldpass='';
+					this.newpass='';
+					this.repass='';
+					document.getElementById("change").style.display="block";
+				},
+				confirm(){
+					if(this.oldpass==''){
+						alert("请输入旧密码")
+					}
+					else if(this.newpass==''){
+						alert("请输入新密码");
+					}
+					else if(this.repass==''){
+						alert("请确认新密码")
+					}
+					else if(this.newpass!=this.repass){
+						alert("两次密码输入不一致")
+					}
+					else{
+						var params = new URLSearchParams();
+			    		  params.append('oldpass', this.oldpass);
+			    		  params.append('newpass', this.newpass);
+						axios.post('/property/changepass.do', params)
+			    		  .then(function (response) {
+			    		    var res=response.data;
+			    		    if(res=='ok'){
+			    		    	alert("修改成功");
+			    		    	document.getElementById("change").style.display="none";
+			    		    }else{
+			    		    	alert("修改失败，请检查输入是否正确")
+			    		    }
+			    		  })
+			    		  .catch(function (error) {
+			    			alert("系统错误，请稍后重试！！！");
+			    		    console.log(error);
+			    		  }); 
+					}
+				},
+				cancel(){
+					document.getElementById("change").style.display="none";
+				}
+			}
+		})
+	</script>
+</html>

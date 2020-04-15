@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>社区管理系统</title>
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+<style type="text/css">
+#fixup {
+	width: 300px;
+	height: 280px;
+	position: fixed;
+	top: 30%;
+	left: 40%;
+	background: #EBEBEB;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+#eval {
+	width: 350px;
+	height: 130px;
+	position: fixed;
+	top: 30%;
+	left: 40%;
+	background: white;
+	border: 0.5px solid;
+	border-radius: 5px;
+	display: none;
+}
+.eval1{
+	width: 60px;
+	height: 60px;
+	cursor:pointer;
+}
+</style>
+</head>
+<body>
+	<div id="app">
+		<!-- 顶部条栏 -->
+		<div id="head">
+			<div class="head_word">
+				<a class="a" href="#" @click="logout">注销</a>
+			</div>
+			<div class="head_word">
+				<a class="a" href="#">当前用户：</a> <a class="a" href="#"
+					v-text="username"></a>
+			</div>
+		</div>
+
+		<HR style="FILTER: alpha(opacity = 0, finishopacity = 100, style = 1)"
+			width="99%" color="#987cb9" SIZE="3">
+
+		<!-- 左侧功能菜单 -->
+		<div id="menu">
+			<ul>
+				<li @click="myinfo">&nbsp;&nbsp;个人信息</li>
+				<li @click="mycar">&nbsp;&nbsp;车辆信息</li>
+				<li @click="feenotdo">&nbsp;&nbsp;待缴费用</li>
+				<li @click="feedo">&nbsp;&nbsp;缴费记录</li>
+				<li @click="fix">&nbsp;&nbsp;维修申请</li>
+			</ul>
+		</div>
+		<!-- 底部条栏 -->
+		<div id="bottom">
+			<div style="text-align: center;">
+				<br> <font color="white">Welcome to Community Management
+					System</font>
+			</div>
+		</div>
+	</div>
+	<!-- 主面板 -->
+	<div id="main_box">
+		<table border="0px" width="100%">
+			<thead>
+				<tr height="30px">
+					<th colspan="8" bgcolor="#DCDCDC" align="left">维修申报</th>
+				</tr>
+				<tr>
+					<th colspan="8" bgcolor="#DCDCDC" align="right"><input
+						type="submit" value="   申报   " @click="fix" style="width: 150px;" /></th>
+				</tr>
+				<tr height="30px">
+					<th bgcolor="#DCDCDC">编号</th>
+					<th bgcolor="#DCDCDC">维修类型</th>
+					<th bgcolor="#DCDCDC">维修详情</th>
+					<th bgcolor="#DCDCDC">维修地点</th>
+					<th bgcolor="#DCDCDC">申报时间</th>
+					<th bgcolor="#DCDCDC">联系电话</th>
+					<th bgcolor="#DCDCDC">评价</th>
+					<th bgcolor="#DCDCDC">状态</th>
+				</tr>
+			</thead>
+			<tbody bgcolor="#F5F5F5">
+				<tr v-for="user in info" height="30px">
+					<td width="3%" align="center" v-text="user.id"></td>
+					<td width="7%" align="center" v-text="user.fixtype"></td>
+					<td width="45%" align="center" v-text="user.mainthing"></td>
+					<td width="15%" align="center" v-text="user.didian"></td>
+					<td width="8%" align="center" v-text="user.time"></td>
+					<td width="8%" align="center" v-text="user.phone"></td>
+					<td width="5%" align="center" v-text="user.evaluate"></td>
+					<template v-if="!user.iseval">
+   						<td width="9%" align="center" v-text="user.type"></td>
+   					</template>
+   					<template v-if="user.iseval">
+   						<td width="9%" align="center">
+   							<a @click="eval(user.id)" style="cursor:pointer">点击评价</a>
+   						</td>
+   					</template>
+				</tr>
+			</tbody>
+		</table>
+		<div id="fixup">
+			<h3 style="position: absolute; top: 20px; left: 100px;">维修申报</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				维修类型：<select name="per_type" v-model="fixtype">
+					<option value="房屋基建">房屋基建</option>
+					<option value="水电维修">水电维修</option>
+					<option value="设备维修">设备维修</option>
+					<option value="其他">其他</option>
+				</select><br> <br>故障地址：<input type="text" maxlength="16"
+					v-model="where" /><br> <br>联系方式：<input type="text"
+					maxlength="16" v-model="phone" /><br> <br>问题描述：
+				<textarea cols="24" rows="5" maxlength="50"
+					style="OVERFLOW: hidden; resize: none; position: relative; left: -49px; float: right"
+					v-model="mainthing"></textarea>
+				<br> <input type="submit" value="确定" style="margin-left: 90px"
+					@click="confirm" /> <input type="submit" value="取消"
+					style="margin-left: 10px" @click="cancel" />
+			</div>
+		</div>
+		<div id="eval">
+			<h3 style="position: absolute; top: 20px; left: 20px;">请评价：</h3>
+			<br>
+			<div style="position: relative; top: 40px; left: 10px;">
+				<img src="images/5.bmp" class="eval1" @click="eval1(5)"/>
+				<img src="images/4.bmp" class="eval1" @click="eval1(4)"/>
+				<img src="images/3.bmp" class="eval1" @click="eval1(3)"/>
+				<img src="images/2.bmp" class="eval1" @click="eval1(2)"/>
+				<img src="images/1.bmp" class="eval1" @click="eval1(1)"/>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="js/vue.min.js"></script>
+<script src="js/axios.min.js"></script>
+<script src="js/main2.js"></script>
+<script type="text/javascript">
+		// 在vm内部访问属性方法用this
+		var vm1=new Vue({
+			el:'#main_box',
+			data(){
+				return{
+					info:[],
+					fixtype:'',
+					where:'',
+					phone:'',
+					mainthing:'',
+					evalid:''
+				}
+			},
+			created(){
+				axios.post('/property/myfixAll.do', )
+	    		  .then(function (response) {
+	    		    var res=response.data;
+	    		   	vm1.info=res;
+	    		  })
+	    		  .catch(function (error) {
+	    			alert("系统错误，请稍后重试！！！");
+	    		    console.log(error);
+	    		  }); 
+			},
+			methods:{
+				fix(){
+					document.getElementById("fixup").style.display="block";
+				},
+				cancel(){
+					document.getElementById("fixup").style.display="none";
+					this.fixtype='';
+					this.where='';
+					this.phone='';
+					this.mainthing='';
+				},
+				confirm(){
+					var params = new URLSearchParams();
+		    		  params.append('fixtype', this.fixtype);
+		    		  params.append('where', this.where);
+		    		  params.append('phone', this.phone);
+		    		  params.append('mainthing', this.mainthing);
+					axios.post('/property/myfixup.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    if(res=='ok'){
+		    		    	alert("申报成功！！！");
+		    		    	location.reload();
+		    		    }
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				},
+				eval(i){
+					document.getElementById("eval").style.display="block";
+					this.evalid=i;
+				},
+				eval1(i){
+					document.getElementById("eval").style.display="none";
+					var params = new URLSearchParams();
+		    		  params.append('id', this.evalid);
+		    		  params.append('eval', i);
+					axios.post('/property/myeval.do', params)
+		    		  .then(function (response) {
+		    		    var res=response.data;
+		    		    location.reload();
+		    		  })
+		    		  .catch(function (error) {
+		    			alert("系统错误，请稍后重试！！！");
+		    		    console.log(error);
+		    		  }); 
+				}
+			}
+		})
+	</script>
+</html>

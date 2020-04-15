@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pers.qlc.property.dao.CarInOutDao">	
+	<select id="carNotDone" resultType="java.util.HashMap">
+		select * from car_in_out where isdo='0'
+	</select>
+	<select id="carDone" resultType="java.util.HashMap">
+		select * from car_in_out where isdo='1' or isdo='2'
+	</select>
+	<update id="carDo">
+		update car_in_out set isdo=#{3},peo=#{1},dotime=#{2} where id=#{0}
+	</update>
+	<insert id="carIn">
+		insert into car_in_out(houseid,in_out,carid,color,type,isdo) values(#{0},#{1},#{2},#{3},#{4},'0')
+	</insert>
+</mapper>
